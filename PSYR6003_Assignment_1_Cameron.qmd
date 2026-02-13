@@ -1,0 +1,30 @@
+---
+title: "PSYR6003_Assignment_1_Cameron"
+author: "Cameron"
+format: html
+editor: visual
+---
+
+```{r}
+#INSTALL AND LIBRARY
+
+
+#install.packages("tidyverse")
+
+
+library(tidyverse)
+```
+
+```{r}
+Avengers_dataset <- read_csv("avengers.csv") #read in the dataset (make sure                                                      tidyverse is libraried in)
+names(Avengers_dataset) #lists the columns of the dataset
+glimpse(Avengers_dataset) #shows what type of data the columns are
+anyNA(Avengers_dataset) #are there missing values in the dataset?
+
+Avengers_dataset %>%
+  summarise(#summarise the dataset into a one row table
+    across(everything(),#do this next function across every column
+           ~ sum(is.na(.x)))) #?across help page. count how many missing values are                                in the column I am looking at (.x), which is applied                                to all columns because of the previous function
+  
+
+```
