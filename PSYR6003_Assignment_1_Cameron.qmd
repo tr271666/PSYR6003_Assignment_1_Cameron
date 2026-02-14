@@ -13,10 +13,13 @@ editor: visual
 
 
 library(tidyverse)
+library(haven)
 ```
 
 ```{r}
+#**********READING IN AND CLEANING DATASET**************
 Avengers_dataset <- read_csv("avengers.csv") #read in the dataset (make sure                                                      tidyverse is libraried in)
+#**********INSPECTING THE DATA*************
 names(Avengers_dataset) #lists the columns of the dataset
 glimpse(Avengers_dataset) #shows what type of data the columns are
 anyNA(Avengers_dataset) #are there missing values in the dataset?
@@ -25,6 +28,32 @@ Avengers_dataset %>%
   summarise(#summarise the dataset into a one row table
     across(everything(),#do this next function across every column
            ~ sum(is.na(.x)))) #?across help page. count how many missing values are                                in the column I am looking at (.x), which is applied                                to all columns because of the previous function
+
+#**********CLEANING DATASET************
+AD_clean <- drop_na(Avengers_dataset)#?drop_na help page. drops rows                                                      containing any missing values
+anyNA(AD_clean)#confirming it contains no missing values (= false,                                  so no missing values)
+nrow(Avengers_dataset)#checking how many rows the original dataset had
+nrow(AD_clean)#checking how many rows the clean set has (i.e.,how many were dropped)
   
 
+```
+
+```{r}
+#****creating Combat Effectiveness variable********
+AD_clean_CE <- mutate(AD_clean, CombatEffectiveness = (agility+speed+strength+willpower))# ?mutate help page. MUTATE MODIFIES OR ADDS C O L U M N S. function(name of dataset, name of new column to add, or name of column to edit = (what its made of))
+names(AD_clean_CE)#confirming new column was added
+anyNA(AD_clean_CE)#confirming no missing values in this new dataset
+```
+
+```{r}
+#************Create a new copy of the dataset in both SPSS and csv formats that only includes the avengers who did not have a superpower and have died********
+AD_clean_CE %>% count(superpower, died)#checking how many had superpowers and died
+
+#?filter.FILTER REMOVES R O W S
+AD_clean_CE_nosup_died <- AD_clean_CE %>%
+  filter(superpower == "no", died == "yes") #creating new dataset for no super power +died. Take the AD_clean_CE dataset and apply(pipe) it to the filter function, which removes rows that contain the correct responses for superpower and died.
+#use == instead of =. one equals means your assigning something. two equals is checking if something is equal to a certain value
+
+write_csv(AD_clean_CE_nosup_died, "AD_Clean_CE_nosup_died.csv")
+write_sav(AD_clean_CE_nosup_died, "AD_Clean_CE_nosup_died.sav")
 ```
