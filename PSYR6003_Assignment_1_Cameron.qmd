@@ -57,3 +57,46 @@ AD_clean_CE_nosup_died <- AD_clean_CE %>%
 write_csv(AD_clean_CE_nosup_died, "AD_Clean_CE_nosup_died.csv")
 write_sav(AD_clean_CE_nosup_died, "AD_Clean_CE_nosup_died.sav")
 ```
+
+```{r}
+#**********Overall Summary of AD_Clean_CE data************
+Summary_stats_overall <- AD_clean_CE_nosup_died %>% #create object using dataset
+  summarise(n = n(),
+            Average_CE = mean(CombatEffectiveness, na.rm = TRUE), 
+            sd_CE = sd(CombatEffectiveness, na.rm = TRUE),
+            min_CE = min(CombatEffectiveness, na.rm = TRUE),
+            max_CE = max(CombatEffectiveness, na.rm = TRUE), #summarize mean,sd, and min/max range
+            
+            Average_kills = mean(kills, na.rm = TRUE),
+            sd_kills = sd(kills, na.rm = TRUE),
+            min_kills = min(kills, na.rm = TRUE),
+            max_kills = max(kills, na.rm = TRUE),
+            
+            Average_injuries = mean(injuries, na.rm = TRUE),
+            sd_injuries = sd(injuries, na.rm = TRUE),
+            min_injuries = min(injuries, na.rm = TRUE),
+            max_injuries = max(injuries, na.rm = TRUE))
+Summary_stats_overall #show the table
+```
+
+```{r}
+#**********Location split Summary of AD_Clean_CE data************
+Summary_stats_location <- AD_clean_CE_nosup_died %>%
+  group_by(north_south) %>%
+  summarise(n = n(),
+            Average_CE = mean(CombatEffectiveness, na.rm = TRUE),
+            sd_CE = sd(CombatEffectiveness, na.rm = TRUE),
+            min_CE = min(CombatEffectiveness, na.rm = TRUE),
+            max_CE = max(CombatEffectiveness, na.rm = TRUE),
+            
+            Average_kills = mean(kills, na.rm = TRUE),
+            sd_kills = sd(kills, na.rm = TRUE),
+            min_kills = min(kills, na.rm = TRUE),
+            max_kills = max(kills, na.rm = TRUE),
+            
+            Average_injuries = mean(injuries, na.rm = TRUE),
+            sd_injuries = sd(injuries, na.rm = TRUE),
+            min_injuries = min(injuries, na.rm = TRUE),
+            max_injuries = max(injuries, na.rm = TRUE))
+Summary_stats_location
+```
