@@ -10,10 +10,16 @@ editor: visual
 
 
 #install.packages("tidyverse")
-
+#install.packages("haven")
+#install.packages("pwr)
+#install.packages("TOSTER")
+#install.packages("metafor")
 
 library(tidyverse)
 library(haven)
+library(pwr)
+library(TOSTER)
+library(metafor)
 ```
 
 ```{r}
@@ -51,7 +57,7 @@ AD_clean_CE %>% count(superpower, died)#checking how many had superpowers and di
 
 #?filter.FILTER REMOVES R O W S
 AD_clean_CE_nosup_died <- AD_clean_CE %>%
-  filter(superpower == "no", died == "yes") #creating new dataset for no super power +died. Take the AD_clean_CE dataset and apply(pipe) it to the filter function, which removes rows that contain the correct responses for superpower and died.
+  filter(superpower == "no", died == "yes") #creating new dataset for no super power +died. Take the AD_clean_CE dataset and apply(pipe) it to the filter function, which removes rows that dont contain the correct responses for superpower and died. i.e., keep only the rows that match my conditions.
 #use == instead of =. one equals means your assigning something. two equals is checking if something is equal to a certain value
 
 write_csv(AD_clean_CE_nosup_died, "AD_Clean_CE_nosup_died.csv")
@@ -99,4 +105,65 @@ Summary_stats_location <- AD_clean_CE_nosup_died %>%
             min_injuries = min(injuries, na.rm = TRUE),
             max_injuries = max(injuries, na.rm = TRUE))
 Summary_stats_location
+```
+
+```{r}
+AD_clean_CE %>% #investigating iq summary stats for effect size justification. (not necessary, but I wanted the practice)
+  summarise(n = n(),
+            mean_iq = mean(iq, na.rm = TRUE),
+            sd_iq = sd(iq, na.rm = TRUE))
+```
+
+```{r}
+#*********POWER ANALYSIS********
+pwr.t.test(d = .5,
+           power = .9,
+           sig.level = 0.05,
+           type = "two.sample",
+           alternative = "two.sided")
+
+#*******TOST*******
+power_t_TOST(low_eqbound = -0.2,
+             high_eqbound = 0.2,
+             alpha = .05,
+             power = .9,
+             type = "two.sample")
+
+
+
+```
+
+```{r}
+#*******cleaning final dataset for question 10*********
+Avengers_dataset %>% count(superpower) #seeing an issue with the original dataset. One of the superpower responses is "yes" instead of yes. the "yes", has iq, and we can therefore include it in the iq/superpower analysis. so we must clean it BEFORE actual analysis.
+
+Avengers_dataset_clean_superpower <- Avengers_dataset %>%
+  mutate(
+    superpower = gsub('"', '', superpower))# getting rid of the additional "" in the yes variable. first argument is the pattern we want to fix ('"' (notice that ' is surrounding ")), and second argument is what we want to replace it with('' (we are replacing it with nothing)). ?gsub help page. dont need it for this specific case, but other functions that could be helpful for future projects: "tolower(superpower)" (converts everything to lowercase), OR "trimws(superpower)" (removes extra spaces at beginning or end of name/string)
+
+Avengers_dataset_clean_superpower %>% count(superpower)#confirming the new dataset is clean/doesnt contain "yes" anymore.
+
+Avengers_dataset_clean_superpower_iq <- Avengers_dataset_clean_superpower %>%
+  filter(!is.na(iq), !is.na(superpower)) # removing NA values from the variables of interest. filter removes rows based on conditions. "is.na(iq)" Checks whether the IQ value is missing. the "!" essentially means "not", so "!is.na(iq)" means that the function is checking if the value is NOT missing. so, this function is basically keeping all of the rows that match my conditions (not missing for iq and suopor power), and eliminating/filtering any others.
+
+Avengers_dataset_clean_superpower_iq %>% count(superpower)#confirming final clean dataset contains only cases that have yes/no answer, without missing values
+
+
+
+#**********effect size and CI calculation******USING THE ACTUAL GROUP SIZES FROM OUR DATASET Avengers_dataset_clean_superpower_iq
+
+Independent_stats <- escalc(measure = "SMD",
+                            ti = 4.25,
+                            n1i = 780,
+                            n2i = 33,
+                            var.names = c("g","variance"))
+summary(Independent_stats)
+
+
+#determining qualitative labels for each effect size range
+cohen.ES(test = "t", size = "small") #The label you put in quotes is what you can change to see the corresponding effect.
+cohen.ES(test = "t", size = "medium") #The label you put in quotes is what you can change to see the corresponding effect.
+cohen.ES(test = "t", size = "large") #The label you put in quotes is what you can change to see the corresponding effect.
+
+#g of 0.7546 is just shy of a "large" effect (0.8). 
 ```
